@@ -12,8 +12,6 @@ import (
 
 const SECRET_ENV = "ZINA_SECRET"
 
-var port int
-
 func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	body, error := io.ReadAll(r.Body)
 	if error != nil {
@@ -29,6 +27,7 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shutdown()
+	w.Write([]byte("Shutting down..."))
 }
 
 func shutdown() {
