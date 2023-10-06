@@ -41,11 +41,12 @@ func main() {
 
 	http.HandleFunc("/shutdown", handleShutdown)
 
+	log.Printf("Listening %d\n", *port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("Server closed\n")
+		log.Printf("Server closed\n")
 	} else if err != nil {
-		fmt.Printf("Error starting server: %s\n", err)
+		log.Printf("Error starting server: %s\n", err)
 		os.Exit(1)
 	}
 }
