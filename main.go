@@ -4,28 +4,42 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
 
-func getRoot(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got / request\n")
-	io.WriteString(w, "This is my website!\n")
+const SECRET_ENV = "ZINA_SECRET"
+
+func handleShutdown(w http.ResponseWriter, r *http.Request) {
+	body, error := io.ReadAll(r.Body)
+	if error != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(error.Error()))
+		return
+	}
+	var token = string(body)
+	if token != os.Getenv(SECRET_ENV) {
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(fmt.Sprintf("Bad token: '%s'\n", token)))
+		return
+	}
+
+	shutdown()
 }
-func getHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got /hello request\n")
-	io.WriteString(w, "Hello, HTTP!\n")
+
+func shutdown() {
+	log.Println("Shutting down...")
 }
 
 func main() {
-	http.HandleFunc("/", getRoot)
-	http.HandleFunc("/hello", getHello)
+	http.HandleFunc("/shutdown", handleShutdown)
 
-	err := http.ListenAndServe(":3333", nil)
+	err := http.ListenAndServe(":8080", nil)
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
+		fmt.Printf("Server closed\n")
 	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
+		fmt.Printf("Error starting server: %s\n", err)
 		os.Exit(1)
 	}
 }
