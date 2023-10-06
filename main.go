@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +11,8 @@ import (
 )
 
 const SECRET_ENV = "ZINA_SECRET"
+
+var port int
 
 func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	body, error := io.ReadAll(r.Body)
@@ -33,9 +36,12 @@ func shutdown() {
 }
 
 func main() {
+	var port = flag.Int("port", 80, "Serving port")
+	flag.Parse()
+
 	http.HandleFunc("/shutdown", handleShutdown)
 
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("Server closed\n")
 	} else if err != nil {
