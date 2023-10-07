@@ -20,6 +20,11 @@ func handleError(w http.ResponseWriter, err error) {
 	w.Write([]byte(err.Error()))
 }
 
+func doResponse(w http.ResponseWriter, message string) {
+	w.Write([]byte(message))
+	log.Println(message)
+}
+
 func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -29,7 +34,7 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	var token = string(body)
 	if token != os.Getenv(SECRET_ENV) {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(fmt.Sprintf("Bad token: '%s'\n", token)))
+		doResponse(w, fmt.Sprintf("Bad token: '%s'\n", token))
 		return
 	}
 
@@ -38,7 +43,7 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) {
 		handleError(w, err)
 		return
 	}
-	w.Write([]byte("Shutting down..."))
+	doResponse(w, "Shutting down...")
 }
 
 func shutdown() error {
