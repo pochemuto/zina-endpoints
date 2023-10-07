@@ -8,15 +8,20 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 )
 
 const SECRET_ENV = "ZINA_SECRET"
 
+func handleError(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(err.Error()))
+}
+
 func handleShutdown(w http.ResponseWriter, r *http.Request) {
-	body, error := io.ReadAll(r.Body)
-	if error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(error.Error()))
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		handleError(err)
 		return
 	}
 	var token = string(body)
@@ -26,12 +31,22 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shutdown()
+	err = shutdown()
+	if err != nil {
+		handleError(w, err)
+		return
+	}
 	w.Write([]byte("Shutting down..."))
 }
 
-func shutdown() {
+func shutdown() error {
+	cmd := exec.Command("/bin/systemctl", "poweroff")
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
 	log.Println("Shutting down...")
+	return nil
 }
 
 func main() {
