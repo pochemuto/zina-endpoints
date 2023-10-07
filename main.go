@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
+	"syscall"
 )
 
 const SECRET_ENV = "ZINA_SECRET"
@@ -42,9 +42,12 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) {
 }
 
 func shutdown() error {
-	cmd := exec.Command("/host-bin/systemctl", "poweroff")
-	err := cmd.Run()
+	wr, err := os.OpenFile("/endpoints-pipe", os.O_WRONLY|syscall.O_NONBLOCK, 0o600)
 	if err != nil {
+		return err
+	}
+	defer wr.Close()
+	if _, err := wr.Write([]byte("shutdown")); err != nil {
 		return err
 	}
 	log.Println("Shutting down...")
