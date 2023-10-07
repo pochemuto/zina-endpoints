@@ -7,9 +7,15 @@ while true; do
 	case $cmd in
 
 	shutdown)
-		echo "Shutdown..."
+		echo "Shutting down..."
+		systemctl poweroff
 		;;
-
+	
+	stop-pipe-reader)
+	    echo "Stop pipe reader..."
+		exit 0
+		;;
+	
 	*)
 		echo "unknown '$cmd'"
 		;;
