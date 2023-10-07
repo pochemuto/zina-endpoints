@@ -42,7 +42,7 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) {
 }
 
 func shutdown() error {
-	cmd := exec.Command("systemctl", "poweroff")
+	cmd := exec.Command("/host-bin/systemctl", "poweroff")
 	err := cmd.Run()
 	if err != nil {
 		return err
