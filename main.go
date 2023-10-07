@@ -21,7 +21,7 @@ func handleError(w http.ResponseWriter, err error) {
 func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		handleError(err)
+		handleError(w, err)
 		return
 	}
 	var token = string(body)
