@@ -13,6 +13,8 @@ import (
 
 const SECRET_ENV = "ZINA_SECRET"
 
+var app_version string
+
 func handleError(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte(err.Error()))
@@ -55,7 +57,8 @@ func main() {
 
 	http.HandleFunc("/shutdown", handleShutdown)
 
-	log.Printf("Listening %d\n", *port)
+	log.Printf("Version %s\n", app_version)
+	log.Printf("Listening :%d ...\n", *port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if errors.Is(err, http.ErrServerClosed) {
 		log.Printf("Server closed\n")

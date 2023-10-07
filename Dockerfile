@@ -1,4 +1,5 @@
 FROM golang:1.21.2-alpine as build
+ARG APP_VERSION=<unset>
 
 WORKDIR /app
 
@@ -7,7 +8,8 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /main
+RUN echo "Building version ${APP_VERSION}";\
+    go build -o /main -ldflags="-X main.app_version=${APP_VERSION}"
 
 FROM scratch
 COPY --from=build /main /main
